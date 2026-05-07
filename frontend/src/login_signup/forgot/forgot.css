@@ -1,0 +1,96 @@
+.forgot__email {
+  color: var(--text);
+  font-weight: 540;
+  word-break: break-all;
+}
+
+.forgot__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-soft);
+  font-size: 13px;
+  font-weight: 500;
+  transition: color var(--t), gap var(--t);
+}
+
+.forgot__back svg {
+  transition: transform var(--t-spring);
+}
+
+.forgot__back:hover {
+  color: var(--accent-hi);
+  gap: 8px;
+}
+
+.forgot__back:hover svg {
+  transform: translateX(-2px);
+}
+
+.forgot__success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 4px 0 6px;
+}
+
+.forgot__success-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  max-width: 320px;
+  line-height: 1.55;
+}
+
+/* ---- Animated checkmark ---- */
+.success-check {
+  display: inline-flex;
+  width: 84px;
+  height: 84px;
+  position: relative;
+  margin-top: 4px;
+}
+
+.success-check::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  background: var(--accent-gradient-soft);
+  opacity: 0;
+  filter: blur(20px);
+  animation: success-glow 800ms 200ms var(--ease-out) forwards;
+}
+
+.success-check svg {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.success-check__ring {
+  stroke-dasharray: 176;
+  stroke-dashoffset: 176;
+  transform-origin: center;
+  transform: rotate(-90deg);
+  animation: ring-draw 700ms var(--ease-out) forwards;
+}
+
+.success-check__tick {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: tick-draw 420ms 520ms var(--ease-out) forwards;
+}
+
+@keyframes ring-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes tick-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes success-glow {
+  to { opacity: 0.6; }
+}

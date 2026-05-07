@@ -1,0 +1,104 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field__label {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-soft);
+  letter-spacing: -0.005em;
+  padding-left: 2px;
+}
+
+.field__shell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 44px;
+  background: var(--bg-elev-1);
+  border: 1px solid var(--glass-border-strong);
+  border-radius: var(--r-md);
+  transition:
+    border-color var(--t),
+    background var(--t),
+    box-shadow var(--t);
+}
+
+.field__shell:hover {
+  border-color: var(--glass-border-bright);
+  background: var(--bg-elev-2);
+}
+
+.field__shell:focus-within {
+  border-color: var(--accent);
+  background: var(--bg-elev-2);
+  box-shadow:
+    0 0 0 4px var(--accent-soft),
+    0 0 24px -6px var(--accent-ring);
+}
+
+.field--error .field__shell { border-color: rgba(248, 113, 113, 0.55); }
+.field--error .field__shell:focus-within {
+  box-shadow:
+    0 0 0 4px rgba(248, 113, 113, 0.14),
+    0 0 24px -6px rgba(248, 113, 113, 0.4);
+}
+
+.field__input {
+  flex: 1;
+  height: 100%;
+  background: transparent;
+  border: 0;
+  outline: none;
+  padding: 0 14px;
+  font-size: 14.5px;
+  color: var(--text);
+  letter-spacing: -0.005em;
+}
+
+.field__input::placeholder { color: var(--text-muted); }
+
+.field__shell:has(.field__adorn--leading) .field__input { padding-left: 6px; }
+.field__shell:has(.field__adorn--trailing) .field__input { padding-right: 6px; }
+
+.field__adorn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 40px;
+  color: var(--text-muted);
+  transition: color var(--t);
+}
+
+.field__shell:focus-within .field__adorn--leading { color: var(--text-soft); }
+
+.field__toggle {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  color: var(--text-muted);
+}
+
+.field__toggle:hover { color: var(--text); }
+
+.field__msg {
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-left: 2px;
+}
+
+.field__msg--error { color: var(--danger); }
+
+/* Autofill */
+.field__input:-webkit-autofill,
+.field__input:-webkit-autofill:hover,
+.field__input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-elev-1) inset;
+  caret-color: var(--text);
+  transition: background-color 5000s ease-in-out 0s;
+}
