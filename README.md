@@ -42,8 +42,8 @@ The application is structured as a monolithic frontend communicating with a REST
 ### Frontend
 - **React 18**
 - **TypeScript**
-- **Vite** (Build tool and development server)
-- **CSS** (Custom styling with CSS variables for theming)
+- **Vite**
+- **CSS**
 
 ## Local Development Setup
 
