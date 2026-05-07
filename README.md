@@ -1,62 +1,84 @@
-# CloudVault ☁️
+# CloudVault
 
-**CloudVault** is your personal, secure sanctuary for all your digital files. Designed with simplicity and security at its core, CloudVault allows you to upload, organize, and access your data from anywhere in the world.
+CloudVault is a full-stack, local-first web application designed for personal cloud storage. It provides a platform for users to securely upload, manage, and retrieve their files and folders through a web interface.
 
-![CloudVault Dashboard](frontend/src/assets/dashboard.png)
+![Dashboard Interface](frontend/src/assets/dashboard.png)
 
-## What is CloudVault?
+## Architecture Overview
 
-CloudVault is more than just a storage app; it's a complete workspace for your digital life. Whether you are a student keeping track of assignments, a professional managing project documents, or just looking for a safe place for your family photos, CloudVault provides the tools you need to stay organized and secure.
+The application is structured as a monolithic frontend communicating with a RESTful backend API.
 
-## Key Features
+- **Frontend:** Built with React, TypeScript, and Vite. It handles the user interface, client-side routing, state management, and interactions with the backend API. It features both light and dark modes and a responsive design.
+- **Backend:** Built with Spring Boot (Java 17+). It serves the REST API, manages authentication, handles file storage operations on the local file system, and interacts with the database for metadata storage.
+- **Database:** Uses a relational database (SQLite/PostgreSQL) to store user credentials, folder hierarchies, and file metadata.
 
-### 📁 Effortless File Management
-Upload your files in seconds. With our intuitive interface, you can manage your documents, images, and videos with ease. Need a file back? Download it instantly with a single click.
+## Core Features
 
-### 📂 Smart Organization
-Stop digging through endless lists of files. Create custom folders and subfolders to categorize your data exactly how you want it. Our nested folder system makes it easy to keep even the largest collections tidy.
+- **User Authentication:** 
+  - User registration and login functionalities.
+  - JWT (JSON Web Token) based authentication for securing API endpoints.
+- **File Operations:**
+  - **Upload:** Users can upload files of various types to the server.
+  - **Download:** Authorized users can download their stored files.
+  - **Delete:** Users can remove files from their storage space.
+- **Folder Management:**
+  - Hierarchical folder structures (nested folders).
+  - Ability to create and delete folders to organize files.
+  - Navigation through the directory tree.
+- **Security:**
+  - Password hashing for secure credential storage.
+  - Endpoint protection ensuring users can only access their own files and folders.
 
-### 🔐 Secure & Private
-Your security is our top priority. CloudVault uses modern authentication standards to ensure that only you have access to your vault. Sign up, log in, and rest easy knowing your files are protected.
+## Technology Stack
 
-### 🌗 Light & Dark Modes
-Whether you're working in a bright office or late at night, CloudVault adjusts to your needs. Toggle between beautiful Light and Dark themes with a single tap.
+### Backend
+- **Java 17**
+- **Spring Boot 3.x**
+  - Spring Web (REST API)
+  - Spring Security (Authentication & Authorization)
+  - Spring Data JPA (Database interactions)
+- **Database:** Relational Database (configurable via application properties, defaults to local DB)
 
-### 📱 Fully Responsive
-Access your vault on your desktop, tablet, or smartphone. CloudVault is built to look great and work perfectly on any screen size.
+### Frontend
+- **React 18**
+- **TypeScript**
+- **Vite** (Build tool and development server)
+- **CSS** (Custom styling with CSS variables for theming)
 
----
+## Local Development Setup
 
-## Getting Started
-
-To get your own instance of CloudVault running locally, follow these simple steps:
+To run CloudVault locally, you need to start both the backend server and the frontend development server.
 
 ### Prerequisites
-- **Java 17** or higher
-- **Node.js** (v18 or higher)
-- **Maven**
+- Java 17 or higher
+- Node.js (v18 or higher)
+- Maven
 
-### 1. Start the Backend
-Open your terminal in the root directory and run:
-```bash
-./mvnw spring-boot:run
-```
-The server will start at `http://localhost:8080`.
+### 1. Backend Setup
+1. Open a terminal in the root directory of the project.
+2. Run the Spring Boot application using the Maven wrapper:
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+3. The backend server will start on `http://localhost:8080`.
 
-### 2. Start the Frontend
-Navigate to the `frontend` directory and run:
-```bash
-cd frontend
-npm install
-npm run dev
-```
-The application will be available at `http://localhost:5173`.
+### 2. Frontend Setup
+1. Open a new terminal instance and navigate to the `frontend` directory:
+   ```bash
+   cd frontend
+   ```
+2. Install the required Node.js dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the Vite development server:
+   ```bash
+   npm run dev
+   ```
+4. The frontend application will be accessible at `http://localhost:5173`.
 
-## Built With
-- **Spring Boot** - A robust backend for secure data handling.
-- **React & Vite** - A lightning-fast, modern frontend experience.
-- **TypeScript** - Ensuring reliability and performance.
-- **PostgreSQL/SQLite** - Reliable database storage for your metadata.
+## Project Structure
 
----
-*CloudVault — Secure. Simple. Yours.*
+- `/src/main/java/com/cloudvault`: Contains the backend Java source code (Controllers, Services, Models, Security configs).
+- `/frontend`: Contains the React frontend application.
+- `/uploads`: Default directory where uploaded files are stored on the local file system (managed by the backend).
