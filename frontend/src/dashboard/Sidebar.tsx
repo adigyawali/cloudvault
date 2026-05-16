@@ -1,17 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import Logo from '../components/Logo'
-import {
-  HardDrive,
-  Clock,
-  Star,
-  Users,
-  Trash,
-  Settings,
-  Plus,
-  Sparkles,
-  Inbox,
-  LogOut,
-} from '../components/Icon'
+import { HardDrive, Settings, Plus, LogOut } from '../components/Icon'
 import { useSession, signOut, initialsOf } from '../lib/auth'
 import './Sidebar.css'
 
@@ -23,25 +12,14 @@ type Props = {
   onClose: () => void
 }
 
-const NAV_PRIMARY = [
+const NAV = [
   { id: 'all', label: 'All Files', icon: <HardDrive /> },
-  { id: 'recent', label: 'Recent', icon: <Clock /> },
-  { id: 'starred', label: 'Starred', icon: <Star /> },
-  { id: 'shared', label: 'Shared', icon: <Users /> },
-  { id: 'inbox', label: 'Inbox', icon: <Inbox /> },
+  { id: 'settings', label: 'Settings', icon: <Settings /> },
 ]
-
-const NAV_SECONDARY = [
-  { id: 'trash', label: 'Trash', icon: <Trash /> },
-]
-
-const STORAGE_USED_GB = 6.4
-const STORAGE_TOTAL_GB = 15
 
 function Sidebar({ active, onSelect, onUpload, open, onClose }: Props) {
   const navigate = useNavigate()
   const session = useSession()
-  const pct = Math.round((STORAGE_USED_GB / STORAGE_TOTAL_GB) * 100)
 
   const handleSelect = (id: string) => {
     onSelect(id)
@@ -76,22 +54,7 @@ function Sidebar({ active, onSelect, onUpload, open, onClose }: Props) {
 
         <nav className="sidebar__nav" aria-label="Library">
           <span className="sidebar__group">Library</span>
-          {NAV_PRIMARY.map((item) => (
-            <button
-              key={item.id}
-              className={`sidebar__link ${active === item.id ? 'is-active' : ''}`}
-              onClick={() => handleSelect(item.id)}
-            >
-              <span className="sidebar__link-icon">{item.icon}</span>
-              <span className="sidebar__link-label">{item.label}</span>
-              {item.id === 'starred' && <span className="sidebar__count">12</span>}
-              {item.id === 'shared' && <span className="sidebar__count">5</span>}
-              {item.id === 'inbox' && <span className="sidebar__dot-new" />}
-            </button>
-          ))}
-
-          <span className="sidebar__group sidebar__group--spaced">System</span>
-          {NAV_SECONDARY.map((item) => (
+          {NAV.map((item) => (
             <button
               key={item.id}
               className={`sidebar__link ${active === item.id ? 'is-active' : ''}`}
@@ -103,23 +66,6 @@ function Sidebar({ active, onSelect, onUpload, open, onClose }: Props) {
           ))}
         </nav>
 
-        <div className="sidebar__storage">
-          <div className="sidebar__storage-head">
-            <span className="sidebar__storage-title">
-              <Sparkles size={13} />
-              Storage
-            </span>
-            <span className="sidebar__storage-pct">{pct}%</span>
-          </div>
-          <div className="sidebar__bar">
-            <span style={{ width: `${pct}%` }} />
-          </div>
-          <p className="sidebar__storage-meta">
-            <strong>{STORAGE_USED_GB} GB</strong> of {STORAGE_TOTAL_GB} GB used
-          </p>
-          <button className="sidebar__upgrade">Upgrade</button>
-        </div>
-
         <div className="sidebar__account">
           <div className="sidebar__avatar">
             <span>{session ? initialsOf(session.user.name) : 'CV'}</span>
@@ -128,14 +74,6 @@ function Sidebar({ active, onSelect, onUpload, open, onClose }: Props) {
             <span className="sidebar__account-name">{session?.user.name || 'Guest'}</span>
             <span className="sidebar__account-email">{session?.user.email || '—'}</span>
           </div>
-          <button
-            className="sidebar__icon-btn"
-            onClick={() => handleSelect('settings')}
-            aria-label="Settings"
-            title="Settings"
-          >
-            <Settings size={15} />
-          </button>
           <button
             className="sidebar__icon-btn"
             onClick={handleSignOut}

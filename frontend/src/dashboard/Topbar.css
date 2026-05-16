@@ -36,6 +36,12 @@
   .topbar__menu { display: inline-flex; }
 }
 
+.topbar__brand {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
 .topbar__search {
   flex: 1;
   max-width: 560px;

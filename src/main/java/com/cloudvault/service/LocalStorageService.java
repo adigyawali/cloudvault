@@ -10,6 +10,7 @@ import com.cloudvault.model.User;
 import com.cloudvault.repository.FileRepository;
 import com.cloudvault.repository.FolderRepository;
 import com.cloudvault.repository.UserRepository;
+import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,15 +29,20 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Local-disk {@link StorageService}. Marked {@link Primary} so a future
+ * S3 implementation can be added without an ambiguous-bean conflict.
+ */
 @Service
-public class FileStorageService {
+@Primary
+public class LocalStorageService implements StorageService {
 
     private final Path rootLocation;
     private final FileRepository fileRepository;
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
 
-    public FileStorageService(StorageConfig properties, FileRepository fileRepository, FolderRepository folderRepository, UserRepository userRepository) {
+    public LocalStorageService(StorageConfig properties, FileRepository fileRepository, FolderRepository folderRepository, UserRepository userRepository) {
         this.rootLocation = Paths.get(properties.getLocation());
         this.fileRepository = fileRepository;
         this.folderRepository = folderRepository;
@@ -52,6 +58,7 @@ public class FileStorageService {
         }
     }
 
+    @Override
     public FileResponse store(MultipartFile file, Long folderId) {
         User user = getCurrentUser();
 
@@ -63,7 +70,7 @@ public class FileStorageService {
             if (filename.contains("..")) {
                 throw new StorageException("Cannot store file with relative path outside current directory " + filename);
             }
-            
+
             // Unique filename to prevent overwrite on disk
             String diskFilename = System.currentTimeMillis() + "_" + filename;
             try (InputStream inputStream = file.getInputStream()) {
@@ -94,9 +101,10 @@ public class FileStorageService {
         }
     }
 
+    @Override
     public List<FileResponse> loadAll(Long folderId) {
         User user = getCurrentUser();
-        
+
         List<FileMetadata> files;
         if (folderId != null) {
              files = fileRepository.findByOwnerIdAndFolderId(user.getId(), folderId);
@@ -107,12 +115,13 @@ public class FileStorageService {
         return files.stream().map(this::mapToFileResponse).collect(Collectors.toList());
     }
 
+    @Override
     public Resource loadAsResource(Long fileId) {
         try {
             User user = getCurrentUser();
             FileMetadata metadata = fileRepository.findByIdAndOwnerId(fileId, user.getId())
                     .orElseThrow(() -> new FileNotFoundException("File not found id: " + fileId));
-            
+
             Path file = rootLocation.resolve(metadata.getPath());
             Resource resource = new UrlResource(file.toUri());
             if (resource.exists() && resource.isReadable()) {
@@ -125,11 +134,20 @@ public class FileStorageService {
         }
     }
 
+    @Override
+    public String getContentType(Long fileId) {
+        User user = getCurrentUser();
+        FileMetadata metadata = fileRepository.findByIdAndOwnerId(fileId, user.getId())
+                .orElseThrow(() -> new FileNotFoundException("File not found id: " + fileId));
+        return metadata.getType();
+    }
+
+    @Override
     public void delete(Long fileId) {
          User user = getCurrentUser();
          FileMetadata metadata = fileRepository.findByIdAndOwnerId(fileId, user.getId())
                  .orElseThrow(() -> new FileNotFoundException("File not found id: " + fileId));
-         
+
          try {
              Files.deleteIfExists(rootLocation.resolve(metadata.getPath()));
              fileRepository.delete(metadata);
@@ -145,6 +163,7 @@ public class FileStorageService {
                 .toUriString();
 
         return FileResponse.builder()
+                .id(metadata.getId())
                 .name(metadata.getName())
                 .url(fileDownloadUri)
                 .type(metadata.getType())

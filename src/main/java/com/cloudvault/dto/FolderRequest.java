@@ -9,10 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FileResponse {
-    private Long id;
+public class FolderRequest {
     private String name;
-    private String url;
-    private String type;
-    private long size;
+    // null creates the folder at the root level
+    private Long parentId;
 }

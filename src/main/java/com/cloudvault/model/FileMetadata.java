@@ -32,6 +32,13 @@ public class FileMetadata {
 
     private LocalDateTime uploadDate;
 
+    // Updated whenever the file is opened/downloaded; drives the Recents view.
+    private LocalDateTime lastAccessedAt;
+
+    @Builder.Default
+    @Column(nullable = false)
+    private boolean favorite = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User owner;

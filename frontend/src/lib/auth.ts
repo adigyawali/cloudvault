@@ -1,4 +1,5 @@
 import { useSyncExternalStore } from 'react'
+import { apiLogin, apiRegister, setToken, clearToken, getToken } from './api'
 
 const KEY = 'cv_auth_v1'
 const EVT = 'cv:auth-change'
@@ -44,18 +45,21 @@ function readSession(): { raw: string | null; session: Session | null } {
 }
 
 export function getSession(): Session | null {
-  return readSession().session
+  // A session is only valid if it's backed by a real JWT. This prevents a
+  // stale/mock session from rendering the app with no token (which the
+  // backend rejects with 403 on every /api call).
+  const { session } = readSession()
+  if (!session || !getToken()) return null
+  return session
 }
 
 export function isAuthed(): boolean {
   return getSession() !== null
 }
 
-export async function signIn(provider: Provider, identity: Identity): Promise<Session> {
-  await new Promise((r) => setTimeout(r, 700))
-  const name = identity.name?.trim() || identity.email.split('@')[0]
+function persist(provider: Provider, name: string, email: string): Session {
   const session: Session = {
-    user: { name, email: identity.email, provider },
+    user: { name, email, provider },
     signedInAt: Date.now(),
   }
   localStorage.setItem(KEY, JSON.stringify(session))
@@ -63,8 +67,39 @@ export async function signIn(provider: Provider, identity: Identity): Promise<Se
   return session
 }
 
+export async function signIn(
+  provider: Provider,
+  identity: Identity,
+  password?: string,
+): Promise<Session> {
+  // Email auth goes through the backend so we get a real JWT for API calls.
+  if (provider === 'email') {
+    if (!password) throw new Error('Password required')
+    const { token } = await apiLogin(identity.email, password)
+    setToken(token)
+    const name = identity.name?.trim() || identity.email.split('@')[0]
+    return persist('email', name, identity.email)
+  }
+  // Google has no backend OAuth yet, so it can't issue a JWT. Fail clearly
+  // instead of creating a tokenless session that the backend would 403.
+  throw new Error('Google sign-in isn’t available yet — use email for now.')
+}
+
+export async function signUp(
+  name: string,
+  email: string,
+  password: string,
+): Promise<Session> {
+  const trimmed = name.trim()
+  const [firstName, ...rest] = trimmed.split(/\s+/)
+  const { token } = await apiRegister(firstName || '', rest.join(' '), email, password)
+  setToken(token)
+  return persist('email', trimmed || email.split('@')[0], email)
+}
+
 export function signOut(): void {
   localStorage.removeItem(KEY)
+  clearToken()
   window.dispatchEvent(new Event(EVT))
 }
 

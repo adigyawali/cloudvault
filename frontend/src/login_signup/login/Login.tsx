@@ -35,10 +35,10 @@ function Login() {
     setError(null)
     setLoading('email')
     try {
-      await signIn('email', { email })
+      await signIn('email', { email }, password)
       finish('email')
-    } catch {
-      setError('Could not sign you in. Try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not sign you in. Try again.')
       setLoading(null)
     }
   }

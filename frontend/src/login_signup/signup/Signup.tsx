@@ -11,7 +11,7 @@ import {
   User,
   GoogleGlyph,
 } from '../../components/Icon'
-import { signIn, MOCK_IDENTITY, type Provider } from '../../lib/auth'
+import { signIn, signUp, MOCK_IDENTITY, type Provider } from '../../lib/auth'
 
 type Strength = 0 | 1 | 2 | 3 | 4
 
@@ -52,10 +52,10 @@ function Signup() {
     setError(null)
     setLoading('email')
     try {
-      await signIn('email', { name, email })
+      await signUp(name, email, password)
       finish('email')
-    } catch {
-      setError('Could not create your account. Try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not create your account. Try again.')
       setLoading(null)
     }
   }
