@@ -23,4 +23,7 @@ public interface StorageService {
     String getContentType(Long fileId);
 
     void delete(Long fileId);
+
+    /** Recursively removes the bytes + metadata of every file in a folder subtree. */
+    void deleteFilesUnderFolderTree(Long folderId);
 }

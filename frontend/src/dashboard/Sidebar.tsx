@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import Logo from '../components/Logo'
-import { HardDrive, Settings, Plus, LogOut } from '../components/Icon'
+import { HardDrive, Settings, Plus, LogOut, Star, Clock } from '../components/Icon'
 import { useSession, signOut, initialsOf } from '../lib/auth'
 import './Sidebar.css'
 
@@ -14,6 +14,8 @@ type Props = {
 
 const NAV = [
   { id: 'all', label: 'All Files', icon: <HardDrive /> },
+  { id: 'favorites', label: 'Favorites', icon: <Star /> },
+  { id: 'recents', label: 'Recents', icon: <Clock /> },
   { id: 'settings', label: 'Settings', icon: <Settings /> },
 ]
 

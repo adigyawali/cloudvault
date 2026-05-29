@@ -17,7 +17,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,12 +40,14 @@ public class LocalStorageService implements StorageService {
     private final FileRepository fileRepository;
     private final FolderRepository folderRepository;
     private final UserRepository userRepository;
+    private final FileMapper fileMapper;
 
-    public LocalStorageService(StorageConfig properties, FileRepository fileRepository, FolderRepository folderRepository, UserRepository userRepository) {
+    public LocalStorageService(StorageConfig properties, FileRepository fileRepository, FolderRepository folderRepository, UserRepository userRepository, FileMapper fileMapper) {
         this.rootLocation = Paths.get(properties.getLocation());
         this.fileRepository = fileRepository;
         this.folderRepository = folderRepository;
         this.userRepository = userRepository;
+        this.fileMapper = fileMapper;
         init();
     }
 
@@ -94,7 +95,7 @@ public class LocalStorageService implements StorageService {
 
             fileRepository.save(metadata);
 
-            return mapToFileResponse(metadata);
+            return fileMapper.toResponse(metadata);
 
         } catch (IOException e) {
             throw new StorageException("Failed to store file " + filename, e);
@@ -112,7 +113,7 @@ public class LocalStorageService implements StorageService {
              files = fileRepository.findByOwnerIdAndFolderIsNull(user.getId());
         }
 
-        return files.stream().map(this::mapToFileResponse).collect(Collectors.toList());
+        return files.stream().map(fileMapper::toResponse).collect(Collectors.toList());
     }
 
     @Override
@@ -156,19 +157,26 @@ public class LocalStorageService implements StorageService {
          }
     }
 
-    private FileResponse mapToFileResponse(FileMetadata metadata) {
-        String fileDownloadUri = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("/api/files/download/")
-                .path(metadata.getId().toString())
-                .toUriString();
+    // Removes the on-disk bytes for every file in a folder subtree. The DB rows
+    // are removed by JPA cascade when FolderService deletes the folder, so this
+    // only cleans storage. Kept in the storage layer so an S3 implementation can
+    // override deletion semantics.
+    @Override
+    public void deleteFilesUnderFolderTree(Long folderId) {
+        deleteTreeBytes(folderId, getCurrentUser().getId());
+    }
 
-        return FileResponse.builder()
-                .id(metadata.getId())
-                .name(metadata.getName())
-                .url(fileDownloadUri)
-                .type(metadata.getType())
-                .size(metadata.getSize())
-                .build();
+    private void deleteTreeBytes(Long folderId, Long ownerId) {
+        for (Folder sub : folderRepository.findByOwnerIdAndParentId(ownerId, folderId)) {
+            deleteTreeBytes(sub.getId(), ownerId);
+        }
+        for (FileMetadata file : fileRepository.findByOwnerIdAndFolderId(ownerId, folderId)) {
+            try {
+                Files.deleteIfExists(rootLocation.resolve(file.getPath()));
+            } catch (IOException e) {
+                throw new StorageException("Could not delete file " + file.getName(), e);
+            }
+        }
     }
 
     private User getCurrentUser() {

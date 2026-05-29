@@ -99,6 +99,7 @@ export type FolderResponse = {
   name: string
   createdAt: string
   parentId: number | null
+  favorite: boolean
 }
 
 export function listFolders(parentId?: number | null): Promise<FolderResponse[]> {
@@ -124,6 +125,27 @@ export function renameFolder(id: number, name: string): Promise<FolderResponse> 
   })
 }
 
+export function moveFolder(
+  id: number,
+  targetFolderId: number | null,
+): Promise<FolderResponse> {
+  return request<FolderResponse>(`/folders/${id}/move`, {
+    method: 'PUT',
+    body: JSON.stringify({ targetFolderId }),
+  })
+}
+
+export function favoriteFolder(id: number, favorite: boolean): Promise<FolderResponse> {
+  return request<FolderResponse>(`/folders/${id}/favorite`, {
+    method: 'PUT',
+    body: JSON.stringify({ favorite }),
+  })
+}
+
+export function listFavoriteFolders(): Promise<FolderResponse[]> {
+  return request<FolderResponse[]>('/folders/favorites')
+}
+
 export function deleteFolder(id: number): Promise<void> {
   return request<void>(`/folders/${id}`, { method: 'DELETE' })
 }
@@ -136,6 +158,10 @@ export type FileResponse = {
   url: string
   type: string
   size: number
+  folderId: number | null
+  favorite: boolean
+  uploadDate: string | null
+  lastAccessedAt: string | null
 }
 
 // Fetches a file's bytes through the authenticated inline-view endpoint.
@@ -158,6 +184,46 @@ export async function fetchFileBlob(id: number): Promise<Blob> {
 export function listFiles(folderId?: number | null): Promise<FileResponse[]> {
   const q = folderId != null ? `?folderId=${folderId}` : ''
   return request<FileResponse[]>(`/files/list${q}`)
+}
+
+export function getFile(id: number): Promise<FileResponse> {
+  return request<FileResponse>(`/files/${id}`)
+}
+
+export function renameFile(id: number, name: string): Promise<FileResponse> {
+  return request<FileResponse>(`/files/${id}/rename`, {
+    method: 'PUT',
+    body: JSON.stringify({ name }),
+  })
+}
+
+export function moveFile(
+  id: number,
+  targetFolderId: number | null,
+): Promise<FileResponse> {
+  return request<FileResponse>(`/files/${id}/move`, {
+    method: 'PUT',
+    body: JSON.stringify({ targetFolderId }),
+  })
+}
+
+export function favoriteFile(id: number, favorite: boolean): Promise<FileResponse> {
+  return request<FileResponse>(`/files/${id}/favorite`, {
+    method: 'PUT',
+    body: JSON.stringify({ favorite }),
+  })
+}
+
+export function deleteFile(id: number): Promise<void> {
+  return request<void>(`/files/${id}`, { method: 'DELETE' })
+}
+
+export function listFavoriteFiles(): Promise<FileResponse[]> {
+  return request<FileResponse[]>('/files/favorites')
+}
+
+export function listRecentFiles(limit = 50): Promise<FileResponse[]> {
+  return request<FileResponse[]>(`/files/recents?limit=${limit}`)
 }
 
 // Multipart upload via XHR so we get real progress events. Backend binds the

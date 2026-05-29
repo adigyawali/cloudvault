@@ -7,6 +7,7 @@ import Login from './login_signup/login/Login.tsx'
 import Signup from './login_signup/signup/Signup.tsx'
 import ForgotPassword from './login_signup/forgot/ForgotPassword.tsx'
 import Dashboard from './pages/Dashboard.tsx'
+import FilePage from './pages/FilePage.tsx'
 import RequireAuth from './components/RequireAuth.tsx'
 import { isAuthed } from './lib/auth.ts'
 
@@ -33,6 +34,15 @@ createRoot(document.getElementById('root')!).render(
           element={
             <RequireAuth>
               <Dashboard />
+            </RequireAuth>
+          }
+        />
+
+        <Route
+          path="/file/:id"
+          element={
+            <RequireAuth>
+              <FilePage />
             </RequireAuth>
           }
         />

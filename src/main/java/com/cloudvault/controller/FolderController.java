@@ -1,7 +1,9 @@
 package com.cloudvault.controller;
 
+import com.cloudvault.dto.FavoriteRequest;
 import com.cloudvault.dto.FolderRequest;
 import com.cloudvault.dto.FolderResponse;
+import com.cloudvault.dto.MoveRequest;
 import com.cloudvault.model.Folder;
 import com.cloudvault.service.FolderService;
 import lombok.RequiredArgsConstructor;
@@ -48,10 +50,30 @@ public class FolderController {
         );
     }
 
+    @GetMapping("/favorites")
+    public ResponseEntity<List<FolderResponse>> listFavorites() {
+        return ResponseEntity.ok(
+                folderService.listFavorites().stream().map(this::mapToResponse).toList());
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<FolderResponse> renameFolder(
             @PathVariable Long id, @RequestBody FolderRequest request) {
         return ResponseEntity.ok(mapToResponse(folderService.renameFolder(id, request.getName())));
+    }
+
+    @PutMapping("/{id}/move")
+    public ResponseEntity<FolderResponse> moveFolder(
+            @PathVariable Long id, @RequestBody MoveRequest request) {
+        return ResponseEntity.ok(
+                mapToResponse(folderService.moveFolder(id, request.getTargetFolderId())));
+    }
+
+    @PutMapping("/{id}/favorite")
+    public ResponseEntity<FolderResponse> setFavorite(
+            @PathVariable Long id, @RequestBody FavoriteRequest request) {
+        return ResponseEntity.ok(
+                mapToResponse(folderService.setFavorite(id, request.isFavorite())));
     }
 
     @DeleteMapping("/{id}")
@@ -69,6 +91,7 @@ public class FolderController {
                 .createdAt(folder.getCreatedAt())
                 // Hibernate keeps the FK id on the proxy, so this won't hit the DB
                 .parentId(folder.getParent() != null ? folder.getParent().getId() : null)
+                .favorite(folder.isFavorite())
                 .build();
     }
 }

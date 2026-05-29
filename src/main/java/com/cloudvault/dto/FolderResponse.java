@@ -17,4 +17,5 @@ public class FolderResponse {
     private LocalDateTime createdAt;
     // null means this folder lives at the root level
     private Long parentId;
+    private boolean favorite;
 }

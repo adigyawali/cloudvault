@@ -26,6 +26,12 @@ public class Folder {
 
     private LocalDateTime createdAt;
 
+    // columnDefinition default lets ddl-auto=update add this to tables that
+    // already have rows without a NOT NULL violation.
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean favorite = false;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User owner;

@@ -35,8 +35,10 @@ public class FileMetadata {
     // Updated whenever the file is opened/downloaded; drives the Recents view.
     private LocalDateTime lastAccessedAt;
 
+    // columnDefinition default lets ddl-auto=update add this to tables that
+    // already have rows without a NOT NULL violation.
     @Builder.Default
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean favorite = false;
 
     @ManyToOne(fetch = FetchType.LAZY)
